@@ -1,10 +1,6 @@
-# Leveraging Your Own Documents in a Langchain Pipeline
+# Machine Enabled Legislation Transposition (MELT)
 
-This project highlights how to leverage a ChromaDB vectorstore in a Langchain pipeline to create a GPT Enabled Legislation Transposer.
-
-## See it live and in action 📺
-
-[Youtube Turoial](https://youtu.be/u8vQyTzNGVY)
+This project highlights how to leverage a ChromaDB vectorstore in a Langchain pipeline to create a GPT Enabled Legislation Transposer. This repository is only a demo of MELT using the Social Security Act 1991 to demonstrate it's functionality.
 
 # Startup 🚀
 
@@ -18,9 +14,3 @@ This project highlights how to leverage a ChromaDB vectorstore in a Langchain pi
 
 <p>The main LG Agent used:<a href="https://python.langchain.com/en/latest/modules/agents/toolkits/examples/vectorstore.html">Langchain VectorStore Agents
 </a></p>
-
-# Who, When, Why?
-
-👨🏾‍💻 Author: Nick Renotte <br />
-📅 Version: 1.?<br />
-📜 License: This project is licensed under the MIT License </br>
