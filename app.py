@@ -53,7 +53,7 @@ agent_executor = create_vectorstore_agent(
     toolkit=toolkit,
     verbose=True
 )
-st.title('M.E.L.T. Social Security Act 1991')
+st.title('M.E.L.T. w/ Social Security Act 1991')
 # Create a text input box for the user
 prompt = st.text_input('Input your prompt here')
 
