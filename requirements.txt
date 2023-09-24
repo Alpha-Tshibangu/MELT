@@ -134,3 +134,4 @@ websockets
 yarl
 zipp
 zstandard
+sqlite3
