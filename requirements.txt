@@ -19,7 +19,7 @@ blinker
 cachetools
 certifi
 charset-normalizer
-chromadb
+chromadb <= 0.3.29
 click
 clickhouse-connect
 colorama
@@ -134,4 +134,3 @@ websockets
 yarl
 zipp
 zstandard
-sqlite3 >= 3.35.0
