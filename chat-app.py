@@ -25,11 +25,17 @@ llm = ChatOpenAI(temperature=0.1, model_name="gpt-4",streaming=True)
 def load_version_history():
     with open("version_history.txt", "r") as file:
         return file.read()
-        
+
+# Sidebar section for uploading files and providing a YouTube URL
 with st.sidebar:
     uploaded_files = st.file_uploader("Please upload your files", accept_multiple_files=True, type=None)
-    st.info(load_version_history(), icon="🤖")
-    st.info("Please refresh the browser if you decided to upload more files to reset the session", icon="🚨")
+
+    # Create an expander for the version history in the sidebar
+    with st.sidebar.expander("**Version History**", expanded=False):
+        st.write(load_version_history())
+
+    st.info("Please refresh the browser if you decide to upload more files to reset the session", icon="🚨")
+    
 # Check if files are uploaded
 if uploaded_files:
     # Print the number of files to console
@@ -55,10 +61,6 @@ if uploaded_files:
             # Extend the main documents list with the loaded documents
             documents.extend(loaded_documents)
 
-        # Chunk the data, create embeddings, and save in vectorstore
-        # text_splitter = CharacterTextSplitter(chunk_size=2000, chunk_overlap=300, separators=[" ", ",", "\n", "\n\n"])
-        # document_chunks = text_splitter.split_documents(documents)
-
         embeddings = OpenAIEmbeddings()
         vectorstore = Chroma.from_documents(loaded_documents, embeddings)
 
@@ -78,7 +80,6 @@ if uploaded_files:
 
     # Initialize Langchain's QA Chain with the vectorstore
     qa = ConversationalRetrievalChain.from_llm(llm,vectorstore.as_retriever())
-
 
     # Initialize chat history
     if "messages" not in st.session_state:
