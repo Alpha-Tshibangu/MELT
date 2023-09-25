@@ -69,7 +69,7 @@ numpy
 openai
 openapi-schema-pydantic
 packaging
-pandas
+pandas==2.0.3
 parso
 pdfminer
 pickleshare
