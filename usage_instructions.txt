@@ -1,0 +1,23 @@
+Upload files or provide website URLs, then use OpenAI's model to ask questions about the content.
+
+## Features
+
+- **OpenAI API Key**: Input in the sidebar. Necessary for the app to function.
+- **File Uploader**: Supports `.png`, `.jpg`, `.pdf`, `.docx`, and `.txt`. Images get captioned; documents get text extracted.
+- **Website URL**: Provide a URL for the app to process its content.
+- **Chat Interface**: Ask questions about the uploaded or transcribed content.
+
+## Nuances
+
+- Refresh the browser to reset the session if uploading more files.
+- Upload files before website URLs.
+- Assistant responses might come in chunks.
+
+## How to Use
+
+1. **Launch App**: Use the Streamlit URL.
+2. **Input OpenAI API Key**: Sidebar entry is a must.
+3. **Upload/URL**: Use the sidebar uploader or input a website URL.
+4. **Ask Questions**: Use the chat interface.
+5. **See History**: Previous questions and answers stay visible.
+6. **Session Reset**: Refresh the browser if needed.

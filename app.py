@@ -1,72 +1,156 @@
-# Import os to set API key
-import os
-# Import OpenAI as main LLM service
-from langchain.llms import OpenAI
-from langchain.embeddings import OpenAIEmbeddings
-# Bring in streamlit for UI/app interface
 import streamlit as st
-from fastapi import FastAPI, Depends, HTTPException
-from pydantic import BaseModel
-from typing import Optional
-
-app = FastAPI()
-
-# Import PDF document loaders...there's other ones as well!
-from langchain.document_loaders import PyPDFLoader
-# Import chroma as the vector store 
+from langchain.document_loaders import WebBaseLoader
+from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.chains import ConversationalRetrievalChain
+from langchain.chat_models import ChatOpenAI
+from langchain.document_loaders import UnstructuredFileLoader
+from langchain.document_loaders.image import UnstructuredImageLoader
+from langchain.document_loaders import ImageCaptionLoader
+from langchain.docstore.document import Document
+import os
+import pytube
+import openai
 
-# Import vector store stuff
-from langchain.agents.agent_toolkits import (
-    create_vectorstore_agent,
-    VectorStoreToolkit,
-    VectorStoreInfo
-)
+# Chat UI title
+st.header("Machine Enabled Legislation Transposition")
 
-# Set APIkey for OpenAI Service
-# Can sub this out for other LLM providers
-os.environ['OPENAI_API_KEY'] = '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'
+# File uploader in the sidebar on the left
+with st.sidebar:
+    # Input for OpenAI API Key
+    openai_api_key = st.text_input("OpenAI API Key", type="password")
 
-# Create instance of OpenAI LLM
-llm = OpenAI(temperature=0.1, verbose=True)
-embeddings = OpenAIEmbeddings()
+    # Check if OpenAI API Key is provided
+    if not openai_api_key:
+        st.info("Please add your OpenAI API key to continue.")
+        st.stop()
 
-# Create and load PDF Loader
-loader = PyPDFLoader('Social Security Act 1991.pdf')
-# Split pages from pdf 
-pages = loader.load_and_split()
-# Load documents into vector database aka ChromaDB
-store = Chroma.from_documents(pages, embeddings, collection_name='socialsecurityact1991')
+    # Set OPENAI_API_KEY as an environment variable
+    os.environ["OPENAI_API_KEY"] = openai_api_key
 
-# Create vectorstore info object - metadata repo?
-vectorstore_info = VectorStoreInfo(
-    name="social_security_act_1991",
-    description="social security act 1991 as a pdf",
-    vectorstore=store
-)
-# Convert the document store into a langchain toolkit
-toolkit = VectorStoreToolkit(vectorstore_info=vectorstore_info)
+# Initialize ChatOpenAI model
+llm = ChatOpenAI(temperature=0, max_tokens=1000, model_name="gpt-4", streaming=True)
 
-# Add the toolkit to an end-to-end LC
-agent_executor = create_vectorstore_agent(
-    llm=llm,
-    toolkit=toolkit,
-    verbose=True
-)
-st.title('M.E.L.T. w/ Social Security Act 1991')
-# Create a text input box for the user
-prompt = st.text_input('Input your prompt here')
+# Load usage instructions from the text file
+def load_version_history():
+    with open("usage_instructions.txt", "r") as file:
+        return file.read()
 
-# If the user hits enter
-if prompt:
-    # Then pass the prompt to the LLM
-    response = agent_executor.run(prompt)
-    # ...and write it out to the screen
-    st.write(response)
+# Sidebar section for uploading files and providing a website URL
+with st.sidebar:
+    uploaded_files = st.file_uploader("Please upload your files", accept_multiple_files=True, type=None)
+    website_url = st.text_input("Website URL")
 
-    # With a streamlit expander  
-    with st.expander('Document Similarity Search'):
-        # Find the relevant pages
-        search = store.similarity_search_with_score(prompt) 
-        # Write out the first 
-        st.write(search[0][0].page_content) 
+    # Create an expander for the usage instructions in the sidebar
+    with st.sidebar.expander("**Usage Instructions**", expanded=False):
+        st.write(load_version_history())
+
+    st.info("Please refresh the browser if you decide to upload more files to reset the session", icon="🚨")
+
+# Check if files are uploaded or website URL is provided
+if uploaded_files or website_url:
+    # Print the number of files uploaded or website URL provided to the console
+    st.write(f"Number of files uploaded: {len(uploaded_files)}")
+
+    # Load the data and perform preprocessing only if it hasn't been loaded before
+    if "processed_data" not in st.session_state:
+        # Load the data from uploaded files
+        documents = []
+
+        if uploaded_files:
+            for uploaded_file in uploaded_files:
+                # Get the full file path of the uploaded file
+                file_path = os.path.join(os.getcwd(), uploaded_file.name)
+
+                # Save the uploaded file to disk
+                with open(file_path, "wb") as f:
+                    f.write(uploaded_file.getvalue())
+
+                # Check if the file is an image
+                if file_path.endswith((".png", ".jpg")):
+                    # Use ImageCaptionLoader to load the image file
+                    image_loader = ImageCaptionLoader(path_images=[file_path])
+
+                    # Load image captions
+                    image_documents = image_loader.load()
+
+                    # Append the Langchain documents to the documents list
+                    documents.extend(image_documents)
+                    
+                elif file_path.endswith((".pdf", ".docx", ".txt")):
+                    # Use UnstructuredFileLoader to load the PDF/DOCX/TXT file
+                    loader = UnstructuredFileLoader(file_path)
+                    loaded_documents = loader.load()
+
+                    # Extend the main documents list with the loaded documents
+                    documents.extend(loaded_documents)
+
+        # Load the website audio stream if URL is provided
+        if website_url:
+            loader = WebBaseLoader(website_url)
+            web_data = loader.load()
+
+            # Append the main documents list with the loaded documents
+            documents.append(web_data[0])
+            print(documents)
+
+        # Chunk the data, create embeddings, and save in vectorstore
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=150)
+        document_chunks = text_splitter.split_documents(documents)
+
+        embeddings = OpenAIEmbeddings()
+        vectorstore = Chroma.from_documents(document_chunks, embeddings)
+
+        # Store the processed data in session state for reuse
+        st.session_state.processed_data = {
+            "document_chunks": document_chunks,
+            "vectorstore": vectorstore,
+        }
+
+    else:
+        # If the processed data is already available, retrieve it from session state
+        document_chunks = st.session_state.processed_data["document_chunks"]
+        vectorstore = st.session_state.processed_data["vectorstore"]
+
+    # Initialize Langchain's QA Chain with the vectorstore
+    qa = ConversationalRetrievalChain.from_llm(llm, vectorstore.as_retriever())
+
+    # Initialize chat history
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    # Display chat messages from history on app rerun
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    # Accept user input
+    if prompt := st.chat_input("Ask your questions?"):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        # Query the assistant using the latest chat history
+        result = qa({"question": prompt, "chat_history": [(message["role"], message["content"]) for message in st.session_state.messages]})
+
+        # Display assistant response in chat message container
+        with st.chat_message("assistant"):
+            message_placeholder = st.empty()
+            full_response = ""
+            full_response = result["answer"]
+            message_placeholder.markdown(full_response + "|")
+        message_placeholder.markdown(full_response)    
+        print(full_response)
+        st.session_state.messages.append({"role": "assistant", "content": full_response})
+        
+        # With a streamlit expander  
+        with st.expander('Document Similarity Search'):
+            # Find the relevant pages
+            search = vectorstore.similarity_search_with_score(prompt) 
+            # Write out the first 
+            st.write(search[0][0].page_content) 
+        message_placeholder.markdown(full_response) 
+
+else:
+    st.write("Please upload your files and provide a website URL for transcription.")
