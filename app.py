@@ -116,9 +116,8 @@ if uploaded_files or website_url:
     # Initialize Langchain's QA Chain with the vectorstore
     qa = ConversationalRetrievalChain.from_llm(llm, vectorstore.as_retriever())
 
-    # Initialize chat history
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+    # Initialize chat history if not already initialized
+    st.session_state.messages = st.session_state.get("messages", [])
 
     # Display chat messages from history on app rerun
     for message in st.session_state.messages:
