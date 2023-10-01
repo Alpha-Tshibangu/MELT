@@ -23,7 +23,7 @@ llm = ChatOpenAI(temperature=0.1, model_name="gpt-4",streaming=True)
 
 # Load version history from the text file
 def load_version_history():
-    with open("version_history.txt", "r") as file:
+    with open("usage_instructions.txt", "r") as file:
         return file.read()
 
 # Sidebar section for uploading files and providing a YouTube URL
