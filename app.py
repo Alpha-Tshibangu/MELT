@@ -10,8 +10,6 @@ from langchain.document_loaders.image import UnstructuredImageLoader
 from langchain.document_loaders import ImageCaptionLoader
 from langchain.docstore.document import Document
 import os
-import pytube
-import openai
 
 # Chat UI title
 st.header("Machine Enabled Legislation Transposition")
@@ -46,7 +44,7 @@ with st.sidebar:
     with st.sidebar.expander("**Usage Instructions**", expanded=False):
         st.write(load_version_history())
 
-    st.info("Please refresh the browser if you decide to upload more files to reset the session", icon="🚨")
+    st.info("Please refresh the browser if you decide to upload more files to reset the session.", icon="🚨")
 
 # Check if files are uploaded or website URL is provided
 if uploaded_files or website_url:

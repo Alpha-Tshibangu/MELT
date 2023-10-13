@@ -9,15 +9,14 @@ Upload files or provide website URLs, then use OpenAI's model to ask questions a
 
 ## Nuances
 
-- Refresh the browser to reset the session if uploading more files.
-- Upload files before website URLs.
-- Assistant responses might come in chunks.
+- Refresh the browser to reset the session if uploading more files after initial upload.
+- When multiple files are uploaded, if asking about information found in a particular file, be specific with the filename. 
+- Either upload files or insert Website URL, not both.
+- Document Similarity Search results cannot be viewed for previous answers.
 
 ## How to Use
 
-1. **Launch App**: Use the Streamlit URL.
-2. **Input OpenAI API Key**: Sidebar entry is a must.
-3. **Upload/URL**: Use the sidebar uploader or input a website URL.
-4. **Ask Questions**: Use the chat interface.
-5. **See History**: Previous questions and answers stay visible.
-6. **Session Reset**: Refresh the browser if needed.
+1. **Input OpenAI API Key**: Sidebar entry is a must.
+2. **Upload/URL**: Use the sidebar uploader or input a website URL.
+3. **Ask Questions**: Use the chat interface.
+5. **Session Reset**: Refresh the browser if needed.
