@@ -1,4 +1,4 @@
-Upload files then use OpenAI's model to ask questions about the content.
+Upload a file then to ask questions about the content.
 
 ## Features
 
