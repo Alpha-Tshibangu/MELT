@@ -1,22 +1,20 @@
-Upload files or provide website URLs, then use OpenAI's model to ask questions about the content.
+Upload files then use OpenAI's model to ask questions about the content.
 
 ## Features
 
 - **OpenAI API Key**: Input in the sidebar. Necessary for the app to function.
 - **File Uploader**: Supports `.png`, `.jpg`, `.pdf`, `.docx`, and `.txt`. Images get captioned; documents get text extracted.
-- **Website URL**: Provide a URL for the app to process its content.
 - **Chat Interface**: Ask questions about the uploaded or transcribed content.
 
 ## Nuances
 
 - Refresh the browser to reset the session if uploading more files after initial upload.
 - When multiple files are uploaded, if asking about information found in a particular file, be specific with the filename. 
-- Either upload files or insert Website URL, not both.
 - Document Similarity Search results cannot be viewed for previous answers.
 
 ## How to Use
 
 1. **Input OpenAI API Key**: Sidebar entry is a must.
-2. **Upload/URL**: Use the sidebar uploader or input a website URL.
+2. **Upload File**: Use the sidebar uploader.
 3. **Ask Questions**: Use the chat interface.
 5. **Session Reset**: Refresh the browser if needed.

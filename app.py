@@ -38,7 +38,6 @@ def load_version_history():
 # Sidebar section for uploading files and providing a website URL
 with st.sidebar:
     uploaded_files = st.file_uploader("Please upload your files", accept_multiple_files=True, type=None)
-    website_url = st.text_input("Website URL")
 
     # Create an expander for the usage instructions in the sidebar
     with st.sidebar.expander("**Usage Instructions**", expanded=False):
@@ -47,7 +46,7 @@ with st.sidebar:
     st.info("Please refresh the browser if you decide to upload more files to reset the session.", icon="🚨")
 
 # Check if files are uploaded or website URL is provided
-if uploaded_files or website_url:
+if uploaded_files:
     # Print the number of files uploaded or website URL provided to the console
     st.write(f"Number of files uploaded: {len(uploaded_files)}")
 
@@ -83,15 +82,6 @@ if uploaded_files or website_url:
 
                     # Extend the main documents list with the loaded documents
                     documents.extend(loaded_documents)
-
-        # Load the website audio stream if URL is provided
-        if website_url:
-            loader = WebBaseLoader(website_url)
-            web_data = loader.load()
-
-            # Append the main documents list with the loaded documents
-            documents.append(web_data[0])
-            print(documents)
 
         # Chunk the data, create embeddings, and save in vectorstore
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=150)
